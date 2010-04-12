@@ -23,6 +23,19 @@ function clearCookie(name) {
     alert("TODO: clear "+name+" cookie");
 }
 
+function loginSignupSuccess() {
+    if (window.location.href.indexOf('next=') > 0) {
+        start = window.location.href.indexOf('next=')+('next='.length);
+        end = window.location.href.indexOf('&', start)
+        if (end < 0) end = window.location.href.length;
+        window.location.href =
+            decodeURIComponent(
+                window.location.href.slice(start, end));
+    } else {
+        window.location.href = '/';
+    }
+}
+
 $(function() {
     /* Header search buttons */
     $('#searchbutton').click(navToSearch);
@@ -80,16 +93,7 @@ $(function() {
             url: data.username ? '/user/'+data.username : window.location.href,
             type: 'PUT',
             data: data,
-            success: function() {
-                if (window.location.href.indexOf('next=')) {
-                    start = window.location.href.indexOf('next=');
-                    end = window.location.href.indexOf('&', start) ||
-                        window.location.href.length;
-                    window.location.href =
-                        decodeURIComponent(
-                            window.location.href.slice(start, end));
-                }
-            },
+            success: loginSignupSuccess,
             error: function(req) {
                 if (req.status == 409)
                     $('#settingserror').text('the requested username is taken');
@@ -108,7 +112,7 @@ $(function() {
             url:'/user/'+username,
             type:'POST',
             data:{'password':password},
-            success:function() { window.location.href = '/'; },
+            success:loginSignupSuccess,
             error:function(req) {
                 $('#loginerror').text('incorrect username/password combination');
             }

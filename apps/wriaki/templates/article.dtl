@@ -1,0 +1,26 @@
+{% extends "base.dtl" %}
+{% block content %}
+  {% include "action_line.dtl" %}
+  {% block article_content %}
+    {% if archive %}
+      <div class="warning">
+        Warning: you are viewing an archived version of this page (<a href="{{ archive.path }}?v={{ archive.selected_version }}">{{ archive.selected_version }}</a>).
+      </div>
+      {{ archive.html }}
+    {% else %}
+      {% if requested_version %}{% ifnotequal requested_version selected_version %}
+        <div class="warning">
+          Warning: The version you requested (<a href="{{ article.path }}?v={{ requested_version|urlencode }}">{{ requested_version|escape }}</a>) could not be found.  Version <a href="{{ article.path }}?v={{ article.selected_version }}">{{ article.selected_version }}</a> is displayed below.
+        </div>
+      {% endifnotequal %}{% endif %}
+      {% if article.has_multiple %}
+        <div class="warning">
+          Warning: this page has conflicting tip versions
+          ({% for v in article.tip_versions %}<a href="{{ article.path }}?v={{ v }}">{{ v }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}).
+          Version <a href="{{ article.path }}?v={{ article.selected_version }}">{{ article.selected_version }}</a> is displayed below.
+        </div>
+      {% endif %}
+      {{ article.html }}
+    {% endif %}
+  {% endblock %}
+{% endblock %}

@@ -1,0 +1,263 @@
+Wriaki: the Riak-based Wiki
+
+* Overview
+
+Wriaki is a wiki-like web application, intended to illustrate a few
+strategies for storing data in Riak.
+
+* Installation
+
+** Prerequisites
+
+To run Wriaki, you will need Riak, Python and the Wiki Creole Python
+package.
+
+*** Riak
+
+The easiest way to get Riak is to download a pre-built distribution
+from [http://downloads.basho.com/riak/].  Any version 0.9.1 or newer
+should work.
+
+Riak must be configured to expose its HTTP interface.  By default,
+Riak does this on localhost port 8098.  If you'll be running Wriaki on
+the same machine, you can just leave this setting at its default.
+
+*** Wiki Creole
+
+The easiest way to get Wiki Creole is by using easy_install:
+
+: $ easy_install wiki_creole
+
+** Downloading and Building Wriaki
+
+To setup Wriaki, first clone the source:
+
+: $ hg clone http://bitbucket.org/basho/wriaki
+
+Next, change to the source directory and run make:
+
+: $ cd wriaki
+: $ make rel
+
+** Configuration
+
+After building, you should have a "rel/wriaki/" subdirectory under the
+source directory.  Configuration for wriaki is stored in
+"rel/wriaki/etc/app.config".
+
+The settings that Wriaki knows about are:
+
+ + salt :: the "salt" used for encrypting user passwords
+
+ + riak_ip :: the IP address of the machine in the Riak cluster to
+              connect to
+
+ + riak_port :: the TCP port the Riak node is listening on
+
+ + riak_prefix :: the URL prefix for Riak data
+
+                  http://<riak_ip>:<riak_port>/<riak_prefix>/Bucket/Key
+
+ + web_ip :: the IP to bind Wriaki's webserver to
+
+ + web_port :: the TCP port Wriaki should listen on
+
+ + log_dir :: the directory to write Wriaki's access log in
+
+* Running
+
+Before running Wriaki, ensure that your Riak cluster is started and
+reachable.
+
+Next, run the wriaki script in your rel/wriaki/bin/ subdirectory:
+
+: $ rel/wriaki/bin/wriaki console
+
+To start Wriaki in the background, use "start" instead of "console" on
+that command line.
+
+* Data Layout
+
+There are four basic objects in the Wriaki system: article, archive,
+history, and user.
+
+** Article
+
+One 'article' object exists for each page on the wiki.
+
+*** Key: article title
+
+The key for an article object is the title of the wiki page,
+url-encoded.
+
+*** Bucket: article
+
+Articles are stored in the 'article' Riak bucket.  The 'article'
+bucket is configured for 'allow_mult=true'.  This is done to allow
+multiple users to edit an article concurrently.  If they save at the
+"same" time, the article object will contain siblings on the next
+read, and Wriaki will warn the viewer that there are multiple versions
+of the article that are currently considered "the latest."
+
+*** Body: json
+
+The value of an article object is JSON, with the fields:
+ + text :: (string) content in wiki markup format
+ + message :: (string) commit message
+ + version :: (string) version hash
+ + timestamp :: (int) edit date
+
+*** Headers
+
+Articles use one link to track which user created that version of the
+object.  The link will be to an object in the 'user' bucket, and will
+be tagged 'editor'.
+
+*** Merge: ask user
+
+When conflicting writes to an article are found, the user will be
+given the option to view the version they want.  Editing the article
+will resolve the conflict.
+
+** Archive
+
+One archive object exists for each version (past and present) of each
+article.
+
+*** Key: version.article
+
+The key for an archive object is the version hash appended with the
+article object key, separated by a dot.
+
+*** Bucket: archive
+
+Archive objects are stored in the 'archive' bucket.  The bucket is
+left as 'allow_mult=false'.
+
+*** Body: json
+
+The value of an archive object is exactly the same as that of an
+article object.
+
+*** Headers
+
+The archive object has the same link header as the article object.
+
+*** Merge: last write wins
+
+Archive objects should be write-once, due to their key generation, and
+thus will not need a merge strategy.
+
+** History
+
+One history object exists for each page on the wiki.  The purpose of
+the history object is to hold links to all versions of each article
+object.
+
+*** Key: article
+
+The key for the history object is the same as the key for the article
+object.
+
+*** Bucket: history
+
+History objects are stored in the 'history' bucket.  The bucket is
+configured for 'allow_mult=true' to allow multiple users to add
+article versions (thus updating the history) concurrently.
+
+*** Body: empty
+
+History objects have no data in their bodies.
+
+*** Headers
+
+History object have one link for each version an article has had.  The
+links will target objects in the 'archive' bucket, and will be tagged
+with the timestamp of the article version.
+
+*** Merge: set-union links
+
+Merging two versions of an archive object is simply set-unioning the
+list of links.
+
+** User
+
+One user object exists for each registered user of the wiki.  This
+object keeps track of the user's password and other data.
+
+*** Key: username
+
+User objects are keyed by url-encoded usernames.
+
+*** Bucket: user
+
+User objects are stored in the 'user' bucket.  The bucket is left as
+'allow_mult=false' because only the user should be updating that
+user's object (no concurrent writing).
+
+*** Body: json
+
+The value of a user object is JSON with the fields:
+
+ + email :: (string) email address
+ + password :: (string, base64) encrypted
+ + bio :: (string) short biography
+
+*** Headers
+
+User object have no headers.
+
+*** Merge: last write wins
+
+No merge is needed for user objects.  They should only be edited by
+their owners, and last-write-wins will be good enough to handle that.
+
+* Web Resources
+
+Wriaki exposes the following resources:
+
+ + /user :: login page, GET-only
+ + /user/<username> :: User's settings
+
+      GET: with no query parameters returns a page of public
+           information about the user
+           
+           with query parameter ?edit, returns a form for the user to
+           update their information (user is redirected to
+           non-query-parameter URL if this is not their login)
+
+      PUT: change user data
+
+      POST: login
+
+ + /user/<username>/<sessionid> :: Session information
+
+      GET: get expiry time of the session, also extends the session's
+           expiry
+
+      DELETE: remove the session, "logout"
+
+ + /wiki/<page name> :: Wiki page
+
+      GET: with no query parameters returns the rendered wiki page
+
+           with query parameter ?edit, returns a form for the user to
+           edit the page
+
+           with query parameter ?history, returns a list of the known
+           versions of the object
+
+           with query parameter ?v=<version>, returns the page
+           rendered for the requested version
+
+           with query paramaters
+           ?diff&l=<left_version>&r=<right_version> returns a
+           line-by-line difference of the given versions
+
+      PUT: store a new version of the wiki page
+
+      POST: preview a new version of the wiki page
+
+ + /static/* :: serve static files from disk
+
+      GET: retrieve the specified file

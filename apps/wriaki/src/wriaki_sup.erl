@@ -10,7 +10,8 @@
 -export([init/1]).
 
 %% Helper macro for declaring children of supervisor
--define(CHILD(I, Type), {I, {I, start_link, []}, permanent, 5000, Type, [I]}).
+-define(CHILD(Mod, Conf),
+        {Mod, {Mod, start, [Conf]}, permanent, 5000, worker, [Mod]}).
 
 %% ===================================================================
 %% API functions
@@ -24,5 +25,24 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    {ok, { {one_for_one, 5, 10}, []} }.
+    wriaki:set_bucket_props(),
+    
+    Ip = wriaki:get_app_env(web_ip, "0.0.0.0"),
+    Port = wriaki:get_app_env(web_port, 8000),
+    LogDir = wriaki:get_app_env(log_dir, "priv/log"),
 
+    {ok, Dispatch} = file:consult(filename:join(
+                                    code:priv_dir(wriaki),
+                                    "dispatch.conf")),
+
+    WebConfig = [
+                 {ip, Ip},
+                 {port, Port},
+                 {log_dir, LogDir},
+                 {dispatch, Dispatch}
+                 ],
+    Web = {webmachine_mochiweb,
+           {webmachine_mochiweb, start, [WebConfig]},
+           permanent, 5000, worker, [webmachine_mochiweb]},
+
+    {ok, {{one_for_one, 5, 10}, [Web]}}.

@@ -1,0 +1,10 @@
+{% extends "base.dtl" %}
+
+{% block content %}
+  <h2>User <em>{{ user.username|escape }}</em></h2>
+  {% if edit %}
+    {% include "account_detail_form.dtl" %}
+  {% else %}
+  <p>{% if user.bio %}{{ user.bio|escape }}{% else %}<i>{{ user.username|escape }} has not entered a bio</i>{% endif %}</p>
+  {% endif %}
+{% endblock %}

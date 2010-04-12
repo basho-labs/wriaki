@@ -1,0 +1,5 @@
+<div id="actions">
+  <a href="{{ article.path }}" {% if mode.view %}class="active"{% endif %}>view</a>
+  <a href="{{ article.path }}?edit" {% if mode.edit %}class="active"{% endif %}>edit</a>
+  <a href="{{ article.path }}?history" {% if mode.history %}class="active"{% endif %}>history</a>
+</div>

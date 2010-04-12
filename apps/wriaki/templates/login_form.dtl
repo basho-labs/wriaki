@@ -1,0 +1,16 @@
+{% extends "base.dtl" %}
+
+{% block content %}
+  <h2>Login</h2>
+  <div id="loginerror" class="warning"></div>
+  <dl class="form">
+    <dt>Username</dt>
+    <dd><input name="login_username" type="text" /></dd>
+    <dt>Password</dt>
+    <dd><input name="login_password" type="password" /></dd>
+  </dl>
+  <button id="loginbutton" type="button">login</button>
+  <hr />
+  <h2>Sign up</h2>
+  {% include "account_detail_form.dtl" %}
+{% endblock %}

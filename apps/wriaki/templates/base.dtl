@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <link rel="stylesheet" type="text/css" href="/static/css/wriaki.css" />
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/wriaki.js"></script>
+  </head>
+  <body>
+    <div id="header">
+      <div id="logosearch">
+        <a href="/">
+          <span class="wikiletter">w</span>
+          <span class="riakletter">r</span>
+          <span class="bothletter">i</span>
+          <span class="riakletter">a</span>
+          <span class="bothletter">k</span>
+          <span class="wikiletter">i</span>
+        </a>
+        &nbsp;&nbsp;
+        <input id="searchtext" value="{% if search %}{{ search }}{% endif %}" />
+        <button id="searchbutton">go</button>
+      </div>
+      <div id="welcome">
+        Welcome, <a href="/user/?edit">&nbsp;</a>.
+        <button id="logoutbutton" type="button">logout</button>
+      </div>
+      <div id="login">
+        <a href="/user">Login</a> or <a href="/user">Sign up</a>
+      </div>
+    </div>
+    <div id="content">
+    {% block content %}{% endblock %}
+    </div>
+  </body>
+</html>

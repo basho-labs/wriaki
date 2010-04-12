@@ -1,4 +1,5 @@
 \.beam$
 ^rel/wriaki
 ^deps/.*
+~$
 

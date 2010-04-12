@@ -1,0 +1,58 @@
+span.wikiletter, span.riakletter, span.bothletter {
+    font-size: larger;
+    font-weight: bold
+}
+
+span.wikiletter {
+    color: #009;
+}
+
+span.riakletter {
+    color: #900;
+}
+
+span.bothletter {
+    color: #609;
+}
+
+#logosearch {
+    float: left;
+}
+#welcome, #login {
+    float: right;
+}
+#welcome {
+    display: none;
+}
+#content {
+    clear: both;
+}
+
+#actions {
+    padding: 5px 0;
+    background: #eef;
+}
+
+#actions a {
+    padding: 5px 1em;
+    color: #000;
+}
+
+#actions a.active {
+    font-weight: bold;
+    background: #99f;
+}
+
+.leftversion {
+    background: #ccf;
+}
+.rightversion {
+    background: #cfc;
+}
+
+div.warning {
+    width:80%;
+    margin: 5px 10%;
+    background: #ffc;
+    text-align: center;
+}

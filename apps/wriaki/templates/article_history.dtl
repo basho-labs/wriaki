@@ -1,0 +1,33 @@
+{% extends "article.dtl" %}
+
+{% block article_content %}
+  <h2>Known versions of {{ article.key|escape }}</h2>
+  <form action="{{ article.path }}" method="GET">
+    <table>
+      <thead>
+        <tr>
+          <th>l</th>
+          <th>r</th>
+          <th>version</th>
+          <th>time</th>
+          <th>editor</th>
+          <th>message</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ver in article.history %}
+        <tr>
+          <td><input type="radio" name="l" value="{{ ver.version }}"{% if forloop.first %} checked="checked"{% endif %} /></td>
+          <td><input type="radio" name="r" value="{{ ver.version }}"{% ifequal forloop.counter 2 %} checked="checked"{% endifequal %} /></td>
+          <td><a href="{{ article.path }}?v={{ver.version}}">{{ ver.version }}</a></td>
+          <td>{{ ver.time }}</td>
+          <td>{% if ver.editor %}<a href="/user/{{ ver.editor|urlencode }}">{{ ver.editor|escape }}</a>{% endif %}</td>
+          <td>{% if ver.msg %}{{ ver.msg|escape }}{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <input type="hidden" name="diff" />
+    <button type="submit">diff selected versions</button>
+  </form>
+{% endblock %}

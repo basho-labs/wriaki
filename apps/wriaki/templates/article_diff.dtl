@@ -1,0 +1,11 @@
+{% extends "article.dtl" %}
+
+{% block article_content %}
+  <h1>Diffing {{ article.key|escape }} versions
+    <span class="leftversion"><a href="{{ article.path }}?v={{ versions.left }}">{{ versions.left }}</a></span> and
+    <span class="rightversion"><a href="{{ article.path }}?v={{ versions.right }}">{{ versions.right }}</a></span>.</h1>
+
+  {% for line in lines %}
+    <pre{% ifequal line.type versions.left %} class="leftversion"{% else %}{% ifequal line.type versions.right %} class="rightversion"{% endifequal %}{% endifequal %}>{{ line.text|escape }}</pre>
+  {% endfor %}
+{% endblock %}

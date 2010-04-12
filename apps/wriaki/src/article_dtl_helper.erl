@@ -29,6 +29,7 @@
 -module(article_dtl_helper, [ArticleVs, V]).
 
 -export([key/0,
+         key_urldecoded/0,
          path/0,
          encoded_vclock/0,
          text/0,
@@ -51,6 +52,9 @@ key() ->
         ?B_ARCHIVE -> article:article_key_from_archive_key(
                         rec_obj:key(hd(ArticleVs)))
     end.
+
+key_urldecoded() ->
+    mochiweb_util:unquote(key()).
 
 %% @spec path() -> iolist()
 %% @doc get the URL-path to the article

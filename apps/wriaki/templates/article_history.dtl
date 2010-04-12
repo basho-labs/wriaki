@@ -1,7 +1,7 @@
 {% extends "article.dtl" %}
 
 {% block article_content %}
-  <h2>Known versions of {{ article.key|escape }}</h2>
+  <h2>Known versions of {{ article.key_urldecoded|escape }}</h2>
   <form action="{{ article.path }}" method="GET">
     <table>
       <thead>

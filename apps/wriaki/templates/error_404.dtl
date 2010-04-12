@@ -3,6 +3,6 @@
 {% block content %}
   <div class="notfound">
     <h2>No page was found for &quot;{{ search|escape }}&quot;</h2>
-    <p>Would you like to <a href="/wiki/{{ search|urlencode }}?edit">create it</a>?</p>
+    <p>Would you like to <a href="/wiki/{{ search|escape }}?edit">create it</a>?</p>
   </div>
 {% endblock %}

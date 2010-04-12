@@ -224,5 +224,5 @@ render_404_editor(RD, Ctx) ->
 
 render_404(RD, Ctx) ->
     {ok, C} = error_404_dtl:render([{req, wrq_dtl_helper:new(RD)},
-                                    {search, search_path(RD)}]),
+                                    {search, mochiweb_util:unquote(search_path(RD))}]),
     {C, RD, Ctx}.

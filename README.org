@@ -216,6 +216,39 @@ User object have no headers.
 No merge is needed for user objects.  They should only be edited by
 their owners, and last-write-wins will be good enough to handle that.
 
+** Session
+
+One session object exists for each logged-in user.  This object keeps
+track of when the user last pinged the wiki, and when they will be
+automatically logged out.
+
+*** Key: session token
+
+Session objects are keyed by a randomly-generated session token.
+
+*** Bucket: session
+
+Session objects are stored in the 'session' bucket.  This bucket is
+left as 'allow_mult=false' because only the active session should be
+updating it.
+
+*** Body: json
+
+The value of a session object is JSON with the fields:
+
+ + username :: (string) username for the user of this session
+ + expiry :: (integer) time at which the session will expire
+
+*** Headers
+
+Session objects have no headers.
+
+*** Merge: last write wins
+
+No merge is needed for session objects.  They should only be editred
+by the active session, and last-write-wins will be good enough to
+handle that.
+
 * Web Resources
 
 Wriaki exposes the following resources:

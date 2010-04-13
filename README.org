@@ -9,6 +9,9 @@ strategies for storing data in Riak.
 
 ** Prerequisites
 
+To build Wriaki, you will need Erlang OTP release R13B03 or later,
+Mercurial, and Git.
+
 To run Wriaki, you will need Riak, Python and the Wiki Creole Python
 package.
 
@@ -26,7 +29,8 @@ the same machine, you can just leave this setting at its default.
 
 The easiest way to get Wiki Creole is by using easy_install:
 
-: $ easy_install wiki_creole
+: $ easy_install Genshi
+: $ easy_install Creoleparser
 
 ** Downloading and Building Wriaki
 

@@ -3,8 +3,12 @@
 all:
 	@./rebar compile
 
-rel: all
-	@./rebar generate
+rel: 
+	@./rebar compile generate
 
-relforce: all
-	@./rebar generate force=1
+relforce: 
+	@./rebar compile generate force=1
+
+clean:
+	@./rebar clean
+

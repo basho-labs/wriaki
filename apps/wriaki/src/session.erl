@@ -33,20 +33,20 @@
 -define(EXTENSION, (60*60*6)). %% expire after 6hrs of inactivity
 
 fetch(Client, Key) ->
-    rhc:get(Client, ?B_SESSION, Key).
+    wrc:get(Client, ?B_SESSION, Key).
 
 create(Username) when is_binary(Username) ->
-    refresh(rec_obj:create(?B_SESSION, unique_id_62(),
-                           {struct, [{?F_USER, Username}]})).
+    refresh(wobj:create(?B_SESSION, unique_id_62(),
+                        {struct, [{?F_USER, Username}]})).
 
 get_user(Session) ->
-    rec_obj:get_json_field(Session, ?F_USER).
+    wobj:get_json_field(Session, ?F_USER).
 
 get_expiry(Session) ->
-    rec_obj:get_json_field(Session, ?F_EXPIRY).
+    wobj:get_json_field(Session, ?F_EXPIRY).
 
 refresh(Session) ->
-    rec_obj:set_json_field(Session, ?F_EXPIRY, now_secs()+?EXTENSION).
+    wobj:set_json_field(Session, ?F_EXPIRY, now_secs()+?EXTENSION).
 
 is_valid(Session) ->
     now_secs() < get_expiry(Session).

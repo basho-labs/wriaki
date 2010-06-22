@@ -48,7 +48,7 @@
          }).
 
 init([]) ->
-    {ok, Client} = wriaki:riak_client(),
+    {ok, Client} = wrc:connect(),
     {ok, #ctx{client=Client}}.
 
 allowed_methods(RD, Ctx) ->
@@ -103,7 +103,7 @@ is_conflict(RD, Ctx=#ctx{user=User}) ->
     end.
 
 same_user(U1, U2) ->
-    rec_obj:key(U1) == rec_obj:key(U2).
+    wobj:key(U1) == wobj:key(U2).
 
 to_html(RD, Ctx=#ctx{user=User}) ->
     {ok, C} = user_dtl:render([{req, wrq_dtl_helper:new(RD)},
@@ -116,8 +116,8 @@ accept_form(RD, Ctx=#ctx{user=notfound}) ->
     User = wuser:create(username(RD), []),
     {AuthRD, Auth} = wriaki_auth:start_session(RD, User),
     accept_form(AuthRD, Ctx#ctx{user=User, auth=Auth});
-accept_form(RD, Ctx=#ctx{user=User}) ->
-    {ok, Client} = wriaki:riak_client(rec_obj:key(User)),
+accept_form(RD, Ctx=#ctx{user=User, client=C}) ->
+    {ok, Client} = wrc:set_client_id(C, wobj:key(User)),
     ReqProps = mochiweb_util:parse_qs(wrq:req_body(RD)),
     User1 = case proplists:get_value("email", ReqProps) of
                 undefined -> User;
@@ -135,18 +135,18 @@ accept_form(RD, Ctx=#ctx{user=User}) ->
                     %%TODO: ask for old password too
                     wuser:set_password(User2, Password)
             end,
-    ok = rhc:put(Client, User3),
+    ok = wrc:put(Client, User3),
     {true, RD, Ctx#ctx{client=Client, user=User3}}.
 
-process_post(RD, Ctx=#ctx{user=User}) ->
+process_post(RD, Ctx=#ctx{user=User, client=C}) ->
     ReqProps = mochiweb_util:parse_qs(wrq:req_body(RD)),
     Password = list_to_binary(proplists:get_value("password", ReqProps, [])),
     case wuser:password_matches(User, Password) of
         true ->
             {NewRD, {_Auth, NewUser}} =
                 wriaki_auth:start_session(RD, User),
-            {ok, C} = wriaki:riak_client(username(RD)),
-            rhc:put(C, NewUser),
+            {ok, UC} = wrc:set_client_id(C, username(RD)),
+            wrc:put(UC, NewUser),
             {true, NewRD, NewUser};
         false ->
             {{halt, 409},

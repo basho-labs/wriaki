@@ -38,8 +38,8 @@ check(RD) ->
     end.
 
 check_user_pass(Username, Password) ->
-    {ok, Client} = wriaki:riak_client(),
-    case rhc:get(Client, ?B_USER, Username) of
+    {ok, Client} = wrc:connect(),
+    case wrc:get(Client, ?B_USER, Username) of
         {ok, User} ->
             case user_resource:password_matches(User, Password) of
                 true  -> {ok, User};
@@ -50,13 +50,13 @@ check_user_pass(Username, Password) ->
     end.
 
 check_cookie_auth(SessionCookie) ->
-    {ok, C} = wriaki:riak_client(),
+    {ok, C} = wrc:connect(),
     case session:fetch(C, list_to_binary(SessionCookie)) of
         {ok, Session} ->
             case session:is_valid(Session) of
                 true ->
-                    {ok, UC} = wriaki:riak_client(session:get_user(Session)),
-                    rhc:put(UC, session:refresh(Session)),
+                    {ok, UC} = wrc:set_client_id(C, session:get_user(Session)),
+                    wrc:put(UC, session:refresh(Session)),
                     {ok, User} = wuser:fetch(UC, session:get_user(Session)),
                     {{cookie, SessionCookie}, User};
                 false ->
@@ -70,20 +70,20 @@ check_cookie_auth(SessionCookie) ->
 -define(SESSION_COOKIE, "session").
 
 start_session(RD, User) ->
-    Username = rec_obj:key(User),
+    Username = wobj:key(User),
     Session = session:create(Username),
-    SessionCookie = rec_obj:key(Session),
-    {ok, C} = wriaki:riak_client(Username),
-    ok = rhc:put(C, Session),
+    SessionCookie = wobj:key(Session),
+    {ok, C} = wrc:connect(Username),
+    ok = wrc:put(C, Session),
     {wrq:merge_resp_headers(
       [ mochiweb_cookies:cookie(K, V, [{path, "/"}])
         || {K, V} <- [{?USERNAME_COOKIE, Username},
                       {?SESSION_COOKIE, SessionCookie}] ],
       RD),
      {{cookie, SessionCookie},
-      rec_obj:add_link(User, {{rec_obj:bucket(Session),
-                               rec_obj:key(Session)},
-                              now_secs_string()})}}.
+      wobj:add_link(User, {{wobj:bucket(Session),
+                            wobj:key(Session)},
+                           now_secs_string()})}}.
 
 now_secs_string() ->
     list_to_binary(

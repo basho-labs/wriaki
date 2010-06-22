@@ -30,36 +30,35 @@
 %% @doc Update the history object for Article with an
 %%      entry for the revision contained in Article.
 add_version(Client, Article) ->
-    {ok, Hist} = fetch_or_new(Client, rec_obj:key(Article)),
-    rhc:put(Client,
-            rec_obj:add_link(Hist,
-                             {{?B_ARCHIVE,
-                               article:archive_key(Article)},
-                              date_string(article:get_timestamp(Article))})).
+    {ok, Hist} = fetch_or_new(Client, wobj:key(Article)),
+    wrc:put(Client,
+            wobj:add_link(Hist,
+                          {{?B_ARCHIVE, article:archive_key(Article)},
+                           date_string(article:get_timestamp(Article))})).
 
 date_string(TS) ->
     integer_to_list(TS).
 
 fetch_or_new(Client, Key) ->
-    case rhc:get(Client, ?B_HISTORY, Key) of
+    case wrc:get(Client, ?B_HISTORY, Key) of
         {ok, H} ->
-            case rec_obj:has_siblings(H) of
+            case wobj:has_siblings(H) of
                 true ->
-                    {ok, merge_siblings(rec_obj:get_siblings(H))};
+                    {ok, merge_siblings(wobj:get_siblings(H))};
                 false ->
                     {ok, H}
             end;
         {error, notfound} ->
-            {ok, rec_obj:create(?B_HISTORY, Key, <<>>)}
+            {ok, wobj:create(?B_HISTORY, Key, <<>>)}
     end.
 
 merge_siblings(Siblings) ->
     lists:foldl(fun merge_links/2, hd(Siblings), tl(Siblings)).
 
 merge_links(Obj, Acc) ->
-    lists:foldl(fun(L, A) -> rec_obj:add_link(A, L) end,
+    lists:foldl(fun(L, A) -> wobj:add_link(A, L) end,
                 Acc,
-                rec_obj:get_links(Obj)).
+                wobj:get_links(Obj)).
 
 -define(TIME_ORDER,
         iolist_to_binary(
@@ -94,8 +93,8 @@ merge_links(Obj, Acc) ->
            <<"}">>])).
 
 get_version_summaries(ArticleKey) ->
-    {ok, Client} = wriaki:riak_client(),
-    rhc:mapred(Client,
+    {ok, Client} = wrc:connect(),
+    wrc:mapred(Client,
                [{?B_HISTORY, ArticleKey}],
                [{link, <<"archive">>, '_', false},
                 %{reduce, {jsanon, ?TIME_ORDER}, <<>>, false}, %TODO: paging

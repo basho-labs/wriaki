@@ -23,7 +23,7 @@
          bio/0]).
 
 username() ->
-    rec_obj:key(User).
+    wobj:key(User).
 
 email() ->
     wuser:get_email(User).

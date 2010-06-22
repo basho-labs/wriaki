@@ -33,7 +33,7 @@
               session}).
 
 init([]) ->
-    {ok, Client} = wriaki:riak_client(),
+    {ok, Client} = wrc:connect(),
     {ok, #ctx{client=Client}}.
 
 allowed_methods(RD, Ctx) ->
@@ -48,9 +48,10 @@ resource_exists(RD, Ctx=#ctx{client=C}) ->
             case session:get_user(Session) ==
                 list_to_binary(wrq:path_info(name, RD)) of
                 true ->
+                    {ok, SC} = wrc:set_client_id(C, wobj:key(Session)),
                     NewSession = session:refresh(Session),
-                    rhc:put(C, NewSession),
-                    {true, RD, Ctx#ctx{session=NewSession}};
+                    wrc:put(SC, NewSession),
+                    {true, RD, Ctx#ctx{session=NewSession, client=SC}};
                 false ->
                     {false, RD, Ctx}
             end;
@@ -67,7 +68,7 @@ to_json(RD, Ctx=#ctx{session=Session}) ->
      RD, Ctx}.
 
 delete_resource(RD, Ctx=#ctx{client=C, session=Session}) ->
-    case rhc:delete(C, ?B_SESSION, rec_obj:key(Session)) of
+    case wrc:delete(C, ?B_SESSION, wobj:key(Session)) of
         ok ->
             {true, wriaki_auth:clear_cookies(RD), Ctx};
         _ ->

@@ -9,6 +9,9 @@
              wriaki_auth,
              diff,
 
+             wrc,
+             wobj,
+
              wiki_resource,
              static_resource,
              redirect_resource,

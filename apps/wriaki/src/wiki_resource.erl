@@ -46,7 +46,7 @@
 -define(MODE_DIFF,    "diff").
 
 init([]) ->
-    {ok, Client} = wriaki:riak_client(),
+    {ok, Client} = wrc:connect(),
     {ok, #ctx{client=Client}}.
 
 allowed_methods(RD, Ctx) ->
@@ -73,11 +73,11 @@ is_authorized(RD, Ctx) ->
        true -> {true, RD, Ctx}
     end.
 
-load_username(RD, Ctx=#ctx{username=undefined}) ->
+load_username(RD, Ctx=#ctx{username=undefined, client=C}) ->
     case wriaki_auth:check(RD) of
         {_AuthType, User} ->
-            {ok, UC} = wriaki:riak_client(rec_obj:key(User)),
-            Ctx#ctx{username=rec_obj:key(User),
+            {ok, UC} = wrc:set_client_id(C, wobj:key(User)),
+            Ctx#ctx{username=wobj:key(User),
                     client=UC};
         false ->
             Ctx#ctx{username=none}
@@ -108,7 +108,7 @@ load_version(ReqV, Ctx=#ctx{article_vs=ArticleVs, client=Client}) ->
         false ->
             CtxV = Ctx#ctx{requested_version=ReqV},
             case article:fetch_archive(Client,
-                                       rec_obj:key(hd(ArticleVs)), ReqV) of
+                                       wobj:key(hd(ArticleVs)), ReqV) of
                 {ok, Archive} ->
                     CtxV#ctx{selected_version=ReqV,
                              archive=Archive};
@@ -149,7 +149,7 @@ to_html(RD, Ctx=#ctx{article_vs=ArticleVs, selected_version=V,
     {C, RD, Ctx}.
 
 diff_props(RD, #ctx{article_vs=[A|_], client=C}) ->
-    K = rec_obj:key(A),
+    K = wobj:key(A),
     Lv = wrq:get_qs_value("l", RD),
     Rv = wrq:get_qs_value("r", RD),
     {ok, L} = article:fetch_archive(C, K, Lv),
@@ -168,13 +168,13 @@ accept_form(RD, Ctx=#ctx{client=Client}) ->
     Article = article_from_rd(RD, Ctx),
 
     %% store archive version
-    ok = rhc:put(Client, article:create_archive(Article)),
+    ok = wrc:put(Client, article:create_archive(Article)),
 
     %% update history
     ok = article_history:add_version(Client, Article),
 
     %% store object
-    ok = rhc:put(Client, Article),
+    ok = wrc:put(Client, Article),
     {true, RD, Ctx}.
 
 article_from_rd(RD, Ctx) ->
@@ -235,7 +235,7 @@ render_404_editor(RD, Ctx) ->
                                 mochiweb_html:escape(mochiweb_util:unquote(search_path(RD))),
                                 <<" =\n">>]),
                              <<>>,
-                             "",
+                             undefined,
                              <<>>),
     ACtx = Ctx#ctx{article_vs=[Article],
                    selected_version=article:get_version(Article)},

@@ -51,10 +51,10 @@
 %% @spec key() -> binary()
 %% @doc get the key of the article
 key() -> 
-    case rec_obj:bucket(hd(ArticleVs)) of
-        ?B_ARTICLE -> rec_obj:key(hd(ArticleVs));
+    case wobj:bucket(hd(ArticleVs)) of
+        ?B_ARTICLE -> wobj:key(hd(ArticleVs));
         ?B_ARCHIVE -> article:article_key_from_archive_key(
-                        rec_obj:key(hd(ArticleVs)))
+                        wobj:key(hd(ArticleVs)))
     end.
 
 key_urldecoded() ->
@@ -68,7 +68,7 @@ path() ->
 %% @spec encoded_vclock() -> binary()
 %% @doc get the vclock for Article, base64-encoded
 encoded_vclock() ->
-    rec_obj:get_vclock(hd(ArticleVs)).
+    wobj:get_vclock(hd(ArticleVs)).
 
 %% @spec version_data() -> article_props()
 %% @doc get the object data associated with version V

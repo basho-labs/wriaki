@@ -44,7 +44,6 @@
   {applications, [
                   kernel,
                   stdlib,
-                  riak_erlang_client,
                   webmachine,
                   erlydtl,
                   wiki_creole

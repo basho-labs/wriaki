@@ -98,16 +98,17 @@ msg() ->
 %% @doc get the history summary of Article
 history() ->
     {ok, Summaries} = article_history:get_version_summaries(key()),
-    lists:sort(
-      fun(A, B) ->
-              proplists:get_value(time, A) > proplists:get_value(time, B)
+    lists:map(
+      fun({struct, Props}) ->
+              [{version, proplists:get_value(<<"version">>, Props)},
+               {msg, proplists:get_value(<<"message">>, Props)},
+               {editor, proplists:get_value(<<"editor">>, Props)},
+               {time, format_time(proplists:get_value(<<"timestamp">>, Props))}]
       end,
-      lists:map(
-        fun({struct, Props}) ->
-                [{version, proplists:get_value(<<"version">>, Props)},
-                 {msg, proplists:get_value(<<"message">>, Props)},
-                 {editor, proplists:get_value(<<"editor">>, Props)},
-                 {time, format_time(proplists:get_value(<<"timestamp">>, Props))}]
+      lists:sort(
+        fun({struct, A}, {struct, B}) ->
+                proplists:get_value(<<"timestamp">>, A) >
+                    proplists:get_value(<<"timestamp">>, B)
         end,
         Summaries)).
 

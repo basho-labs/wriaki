@@ -62,19 +62,21 @@ fetch_archive(Client, ArticleKey, Version) ->
 
 create(Key, Text, Message, Vclock, Editor)
   when is_binary(Key), is_binary(Text), is_binary(Message),
-       is_list(Vclock), is_binary(Editor) ->
+       (is_binary(Vclock) orelse Vclock==undefined), is_binary(Editor) ->
     update_version(
       set_text(
         set_message(
           set_editor(
             wobj:set_vclock(
               wobj:create(?B_ARTICLE, Key, {struct, []}),
-              if Vclock == "" -> undefined;
-                 true          -> Vclock
+              if Vclock == <<>> -> undefined;
+                 true           -> Vclock
               end),
             Editor),
           Message),
-        Text)).
+        Text));
+create(Key, Text, Message, Vclock, Editor) when is_list(Vclock) ->
+    create(Key, Text, Message, list_to_binary(Vclock), Editor).
 
 create_archive(Article) ->
     set_editor(

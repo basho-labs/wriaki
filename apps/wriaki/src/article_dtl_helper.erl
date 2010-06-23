@@ -68,7 +68,10 @@ path() ->
 %% @spec encoded_vclock() -> binary()
 %% @doc get the vclock for Article, base64-encoded
 encoded_vclock() ->
-    wobj:get_vclock(hd(ArticleVs)).
+    case wobj:get_vclock(hd(ArticleVs)) of
+        undefined -> <<>>;
+        Vclock -> Vclock
+    end.
 
 %% @spec version_data() -> article_props()
 %% @doc get the object data associated with version V

@@ -161,7 +161,7 @@ from_riakc_obj(RCObj) ->
                 error       -> CVWObj
             end;
         RCSibs -> % siblings
-            WSibs = [{riakc_obj:get_content_type(RCMD),
+            WSibs = [{dict:fetch(?MD_CTYPE, RCMD),
                       case dict:find(?MD_LINKS, RCMD) of
                           {ok, Links} -> Links;
                           error       -> []

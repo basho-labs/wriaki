@@ -95,7 +95,7 @@ $(function() {
         if (e) data.email = e;
 
         var b = $('input[name=bio]').val();
-        if (b) data.name = b;
+        if (b) data.bio = b;
 
         var u = $('input[name=username]');
         if (u.length) {

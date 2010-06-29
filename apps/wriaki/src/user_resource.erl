@@ -97,7 +97,7 @@ is_conflict(RD, Ctx=#ctx{user=notfound}) ->
 is_conflict(RD, Ctx=#ctx{user=User}) ->
     case wriaki_auth:check(RD) of
         {_AuthType, SessionUser} ->
-            {same_user(User, SessionUser), RD, Ctx};
+            {same_user(User, SessionUser) =/= true, RD, Ctx};
         _ ->
             {true, RD, Ctx}
     end.

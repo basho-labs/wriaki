@@ -20,3 +20,9 @@ distclean: clean relclean
 
 relclean:
 	rm -rf rel/wriaki
+
+stage : rel
+	cd rel/wriaki/lib && \
+	rm -rf wiki_creole-* wriaki-* && \
+	ln -s ../../../apps/wiki_creole && \
+	ln -s ../../../apps/wriaki

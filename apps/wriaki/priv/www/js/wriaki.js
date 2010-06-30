@@ -21,7 +21,7 @@
  */
 function navToSearch() {
     var P = $('#searchtext').val();
-    window.location.href = '/'+encodeURIComponent(P);
+    window.location.href = '/wiki/'+encodeURIComponent(P);
 }
 
 function articleURL() {

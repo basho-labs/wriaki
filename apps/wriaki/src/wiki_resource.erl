@@ -232,7 +232,7 @@ render_404_editor(RD, Ctx) ->
     Article = article:create(search_path(RD),
                              list_to_binary(
                                [<<"= This page describes ">>,
-                                mochiweb_html:escape(base64:decode_to_string(search_path(RD))),
+                                mochiweb_html:escape(mochiweb_util:unquote(base64:decode_to_string(search_path(RD)))),
                                 <<" =\n">>]),
                              <<>>,
                              undefined,
@@ -243,5 +243,5 @@ render_404_editor(RD, Ctx) ->
 
 render_404(RD, Ctx) ->
     {ok, C} = error_404_dtl:render([{req, wrq_dtl_helper:new(RD)},
-                                    {search, base64:decode_to_string(search_path(RD))}]),
+                                    {search, mochiweb_util:unquote(base64:decode_to_string(search_path(RD)))}]),
     {C, RD, Ctx}.

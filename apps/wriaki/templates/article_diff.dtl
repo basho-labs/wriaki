@@ -21,7 +21,7 @@
  # -------------------------------------------------------------------
  #}
 {% block article_content %}
-  <h1>Diffing {{ article.key_urldecoded|escape }} versions
+  <h1>Diffing &quot;{{ article.key_urldecoded|escape }}&quot; versions
     <span class="leftversion"><a href="{{ article.path }}?v={{ versions.left }}">{{ versions.left }}</a></span> and
     <span class="rightversion"><a href="{{ article.path }}?v={{ versions.right }}">{{ versions.right }}</a></span>.</h1>
 

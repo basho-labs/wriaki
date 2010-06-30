@@ -21,7 +21,7 @@
  # -------------------------------------------------------------------
  #}
 {% block article_content %}
-  <h2>Known versions of {{ article.key_urldecoded|escape }}</h2>
+  <h2>Known versions of &quot;{{ article.key_urldecoded|escape }}&quot;</h2>
   <form action="{{ article.path }}" method="GET">
     <table>
       <thead>

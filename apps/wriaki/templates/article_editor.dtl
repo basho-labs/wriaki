@@ -24,7 +24,7 @@
   <div id="editdiv">
     <form target="{{ article.path }}?edit" method="POST">
       <textarea id="edittext" name="text" cols="80" rows="25">{{ article.text|escape }}</textarea><br />
-      Revision Message: <input id="editmsg" name="msg" size="60" {% if article.msg %} value="{{ article.msg|escape }}"{% endif %} />
+      Revision Message: <input id="editmsg" name="msg" size="60" value="" />
       <input id="editvclock" name="vclock" type="hidden" value="{{ article.encoded_vclock }}" />
       <div>
         <button id="editcancel" type="button">cancel</button>

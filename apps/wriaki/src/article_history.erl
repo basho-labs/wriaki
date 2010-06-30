@@ -94,11 +94,11 @@ merge_links(Obj, Acc) ->
 
 get_version_summaries(ArticleKey) ->
     {ok, Client} = wrc:connect(),
-    {ok, [{2, Results}]} = 
+    {ok, [{1, Results}]} = 
         wrc:mapred(Client,
                    [{?B_HISTORY, ArticleKey}],
                    [{link, <<"archive">>, '_', false},
 %%%{reduce, {jsanon, ?TIME_ORDER}, <<>>, false}, %TODO: paging
-                    {reduce, {jsanon, ?RE_URLENCODE}, <<>>, false},
+                    %%{reduce, {jsanon, ?RE_URLENCODE}, <<>>, false},
                     {map, {jsanon, ?SUMMARY_EXTRACTION}, <<>>, true}]),
     {ok, Results}.

@@ -58,7 +58,7 @@ key() ->
     end.
 
 key_urldecoded() ->
-    mochiweb_util:unquote(key()).
+    base64:decode_to_string(key()).
 
 %% @spec path() -> iolist()
 %% @doc get the URL-path to the article

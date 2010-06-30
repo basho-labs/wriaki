@@ -105,9 +105,9 @@ archive_key_part(ArchiveKey, Part) ->
 url(Article) ->
     case wobj:bucket(Article) of
         ?B_ARTICLE ->
-            ["/wiki/",mochiweb_util:unquote(wobj:key(Article))];
+            ["/wiki/",base64:decode_to_string(wobj:key(Article))];
         ?B_ARCHIVE ->
-            ["/wiki/",mochiweb_util:unquote(
+            ["/wiki/",base64:decode_to_string(
                         article_key_from_archive_key(
                           wobj:key(Article)))]
     end.

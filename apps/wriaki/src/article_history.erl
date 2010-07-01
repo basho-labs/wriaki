@@ -67,13 +67,6 @@ merge_links(Obj, Acc) ->
            <<"function(a,b) { return b[2]-a[2]; }\n">>,
            <<"); }">>])).
 
--define(RE_URLENCODE,
-        iolist_to_binary(
-          [<<"function(v) {\n">>,
-           <<"return v.map(\n">>,
-           <<"function(v) { return [v[0], encodeURIComponent(v[1]), v[2]]; }\n">>,
-           <<"); }">>])).
-
 -define(SUMMARY_EXTRACTION,
         iolist_to_binary(
           [<<"function(v) {\n">>,
@@ -99,6 +92,5 @@ get_version_summaries(ArticleKey) ->
                    [{?B_HISTORY, ArticleKey}],
                    [{link, <<"archive">>, '_', false},
 %%%{reduce, {jsanon, ?TIME_ORDER}, <<>>, false}, %TODO: paging
-                    %%{reduce, {jsanon, ?RE_URLENCODE}, <<>>, false},
                     {map, {jsanon, ?SUMMARY_EXTRACTION}, <<>>, true}]),
     {ok, Results}.

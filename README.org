@@ -21,9 +21,12 @@ The easiest way to get Riak is to download a pre-built distribution
 from [http://downloads.basho.com/riak/].  Any version 0.9.1 or newer
 should work.
 
-Riak must be configured to expose its HTTP interface.  By default,
-Riak does this on localhost port 8098.  If you'll be running Wriaki on
-the same machine, you can just leave this setting at its default.
+As of version 0.10.0, Riak offers two interfaces, HTTP and Protocol 
+Buffers. Wriaki supports both interfaces. If you plan on using the 
+HTTP interface you must be careful of port conflicts with Wriaki if 
+they are run on the same machine. By default, Riak uses port 8098 on 
+localhost while Wriaki uses port 8000. If you leave the default settings 
+you do not need to worry about port conflicts.
 
 *** Wiki Creole
 
@@ -53,14 +56,10 @@ The settings that Wriaki knows about are:
 
  + salt :: the "salt" used for encrypting user passwords
 
- + riak_ip :: the IP address of the machine in the Riak cluster to
-              connect to
-
- + riak_port :: the TCP port the Riak node is listening on
-
- + riak_prefix :: the URL prefix for Riak data
-
-                  http://<riak_ip>:<riak_port>/<riak_prefix>/Bucket/Key
+ + riak :: the connection information for Riak
+           For Protocol Buffers, use: {pb, {Host, Port}}
+           For HTTP, use: {http, {Host, Port, Prefix}}
+                   http://<Host>:<Port>/<Prefix>/Bucket/Key
 
  + web_ip :: the IP to bind Wriaki's webserver to
 
@@ -92,7 +91,7 @@ One 'article' object exists for each page on the wiki.
 *** Key: article title
 
 The key for an article object is the title of the wiki page,
-url-encoded.
+base64 encoded.
 
 *** Bucket: article
 

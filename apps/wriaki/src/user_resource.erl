@@ -119,24 +119,35 @@ accept_form(RD, Ctx=#ctx{user=notfound}) ->
 accept_form(RD, Ctx=#ctx{user=User, client=C}) ->
     {ok, Client} = wrc:set_client_id(C, wobj:key(User)),
     ReqProps = mochiweb_util:parse_qs(wrq:req_body(RD)),
-    User1 = case proplists:get_value("email", ReqProps) of
-                undefined -> User;
-                Email -> wuser:set_email(User, list_to_binary(Email))
-            end,
-    User2 = case proplists:get_value("bio", ReqProps) of
-                undefined -> User1;
-                Bio -> wuser:set_bio(User1, list_to_binary(Bio))
-            end,
-    User3 = case proplists:get_value("password", ReqProps) of
-                undefined -> User2;
-                []        -> User2;
-                Password ->
-                    %%TODO: kill old sessions
-                    %%TODO: ask for old password too
-                    wuser:set_password(User2, Password)
-            end,
-    ok = wrc:put(Client, User3),
-    {true, RD, Ctx#ctx{client=Client, user=User3}}.
+    ModUser = update_password(
+                update_bio(
+                  update_email(User, ReqProps),
+                  ReqProps),
+                ReqProps),
+    ok = wrc:put(Client, ModUser),
+    {true, RD, Ctx#ctx{client=Client, user=ModUser}}.
+
+update_email(User, ReqProps) ->
+    case proplists:get_value("email", ReqProps) of
+        undefined -> User;
+        Email -> wuser:set_email(User, list_to_binary(Email))
+    end.
+
+update_bio(User, ReqProps) ->
+    case proplists:get_value("bio", ReqProps) of
+        undefined -> User;
+        Bio -> wuser:set_bio(User, list_to_binary(Bio))
+    end.
+
+update_password(User, ReqProps) ->
+    case proplists:get_value("password", ReqProps) of
+        undefined -> User;
+        []        -> User;
+        Password ->
+            %%TODO: kill old sessions
+            %%TODO: ask for old password too
+            wuser:set_password(User, Password)
+    end.
 
 process_post(RD, Ctx=#ctx{user=User, client=C}) ->
     ReqProps = mochiweb_util:parse_qs(wrq:req_body(RD)),

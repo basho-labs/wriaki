@@ -125,7 +125,7 @@ accept_form(RD, Ctx=#ctx{user=User, client=C}) ->
             end,
     User2 = case proplists:get_value("bio", ReqProps) of
                 undefined -> User1;
-                Bio -> wuser:set_bio(User, list_to_binary(Bio))
+                Bio -> wuser:set_bio(User1, list_to_binary(Bio))
             end,
     User3 = case proplists:get_value("password", ReqProps) of
                 undefined -> User2;

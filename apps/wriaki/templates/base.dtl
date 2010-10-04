@@ -38,7 +38,7 @@
           <span class="wikiletter">i</span>
         </a>
         &nbsp;&nbsp;
-        <input id="searchtext" value="{% if search %}{{ search }}{% endif %}" />
+        <input id="searchtext" value="{% if search %}{{ search|escape }}{% endif %}" />
         <button id="searchbutton">go</button>
       </div>
       <div id="welcome">

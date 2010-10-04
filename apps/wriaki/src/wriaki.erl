@@ -20,14 +20,28 @@
 -module(wriaki).
 
 -export([set_bucket_props/0,
+         search_enabled/0,
          get_app_env/2]).
 
 -include_lib("wriaki.hrl").
 
 set_bucket_props() ->
     {ok, Client} = wrc:connect(),
-    ok = wrc:set_bucket(Client, ?B_ARTICLE, [{allow_mult, true}]),
+    ok = wrc:set_bucket(Client, ?B_ARTICLE,
+                        [{allow_mult, true}|search_hook()]),
     ok = wrc:set_bucket(Client, ?B_HISTORY, [{allow_mult, true}]).
+
+search_hook() ->
+    case search_enabled() of
+        true ->
+            [{precommit, [{struct,[{<<"mod">>,<<"riak_search_kv_hook">>},
+                                   {<<"fun">>,<<"precommit">>}]}]}];
+        _ ->
+            []
+    end.
+
+search_enabled() ->
+    get_app_env(search_enabled, false) == true.
 
 get_app_env(Env, Default) ->
     case application:get_env(wriaki, Env) of

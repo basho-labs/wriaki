@@ -242,6 +242,70 @@ render_404_editor(RD, Ctx) ->
     to_html(RD, ACtx).
 
 render_404(RD, Ctx) ->
+    Search = mochiweb_util:unquote(base64url:decode_to_string(search_path(RD))),
+    Results = search(Ctx#ctx.client, Search),
     {ok, C} = error_404_dtl:render([{req, wrq_dtl_helper:new(RD)},
-                                    {search, mochiweb_util:unquote(base64url:decode_to_string(search_path(RD)))}]),
+                                    {search, Search},
+                                    {results, Results}]),
     {C, RD, Ctx}.
+
+-define(SEARCH_FUN,
+        iolist_to_binary(
+          [<<"function(v) {\n">>,
+           <<"return [v.key];\n">>,
+           <<"}">>])).
+
+search(Client, RawSearch) ->
+    case wriaki:search_enabled() of
+        true ->
+            Search = sanitize_search(RawSearch),
+            {ok, RawResults} =
+                wrc:mapred(Client,
+                           {modfun, riak_search, mapred_search,
+                            [<<"article">>,
+                             iolist_to_binary([<<"text:">>, Search])]},
+                           [{map, {jsanon, ?SEARCH_FUN}, <<>>, true}]),
+            case RawResults of
+                [{0, RawKeys}] ->
+                    [ [{url, base64url:decode(R)},
+                       {title, mochiweb_util:unquote(base64url:decode(R))}]
+                      || R <- RawKeys ];
+                _ ->
+                    []
+            end;
+        false ->
+            []
+    end.
+
+sanitize_search(RawSearch) ->
+    [ whitespace_search_operator(C) || C <- RawSearch ].
+
+whitespace_search_operator(C) ->
+    case is_search_operator(C) of
+        true -> 32; % space
+        false -> C
+    end.
+
+-define(SEARCH_OPERATORS,
+        [
+         $:,
+         $(,
+           $),
+         ${,
+           $},
+         $[,
+           $],
+         $+,
+         $-,
+         $!,
+         $&,
+         $|,
+         $^,
+         $~,
+         $*,
+         $?,
+         34  % double quote "
+        ]).
+
+is_search_operator(C) ->
+    lists:member(C, ?SEARCH_OPERATORS).

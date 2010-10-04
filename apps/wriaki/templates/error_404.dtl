@@ -24,5 +24,13 @@
   <div class="notfound">
     <h2>No page was found for &quot;{{ search|escape }}&quot;</h2>
     <p>Would you like to <a href="/wiki/{{ search|escape }}?edit">create it</a>?</p>
+    {% if results %}
+    <h2>Perhaps you were looking for one of these pages?</h2>
+    <ul>
+      {% for result in results %}
+      <li><a href="/wiki/{{result.url}}">{{result.title|escape}}</li>
+      {% endfor %}
+    </ul>
+    {% endif%}
   </div>
 {% endblock %}

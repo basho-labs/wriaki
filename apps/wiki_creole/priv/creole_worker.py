@@ -28,7 +28,7 @@ Acc = ""
 while 1:
     L = sys.stdin.readline()
     if L.strip() == COMMAND_BREAK:
-        H = creoleparser.text2html(Acc)
+        H = creoleparser.text2html(Acc.decode('utf-8'))
         print H
         print COMMAND_BREAK
         sys.stdout.flush()

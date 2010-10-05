@@ -21,6 +21,7 @@
 -export([init/1,
          is_authorized/2,
          resource_exists/2,
+         charsets_provided/2,
          to_html/2,
          allowed_methods/2,
          content_types_accepted/2,
@@ -51,6 +52,9 @@ init([]) ->
 
 allowed_methods(RD, Ctx) ->
     {['HEAD','GET','POST','PUT'], RD, Ctx}.
+
+charsets_provided(RD, Ctx) ->
+    {[{"utf-8", fun(C) -> C end}], RD, Ctx}.
 
 content_types_accepted(RD, Ctx) ->
     {[{"application/x-www-form-urlencoded", accept_form}], RD, Ctx}.
@@ -221,7 +225,7 @@ finish_request(RD, Ctx) ->
                 end,
             {true,
              wrq:set_resp_header(
-               "Content-type", "text/html",
+               "Content-type", "text/html; charset=utf-8",
                wrq:set_resp_body(Content, NewRD)),
              NewCtx};
         _ ->
@@ -232,8 +236,7 @@ render_404_editor(RD, Ctx) ->
     Article = article:create(search_path(RD),
                              list_to_binary(
                                [<<"= This page describes ">>,
-                                mochiweb_html:escape(
-                                  base64url:decode_to_string(search_path(RD))),
+                                base64url:decode_to_string(search_path(RD)),
                                 <<" =\n">>]),
                              <<>>,
                              undefined,

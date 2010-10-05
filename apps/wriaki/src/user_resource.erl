@@ -30,6 +30,7 @@
          allowed_methods/2,
          content_types_accepted/2,
          resource_exists/2,
+         charsets_provided/2,
          is_authorized/2,
          to_html/2,
          is_conflict/2,
@@ -53,6 +54,9 @@ init([]) ->
 
 allowed_methods(RD, Ctx) ->
     {['HEAD','GET','PUT','POST'],RD,Ctx}.
+
+charsets_provided(RD, Ctx) ->
+    {[{"utf-8", fun(C) -> C end}], RD, Ctx}.
 
 content_types_accepted(RD, Ctx) ->
     {[{"application/x-www-form-urlencoded", accept_form}], RD, Ctx}.
@@ -176,7 +180,7 @@ lookup_user(RD, Ctx=#ctx{user=undefined, client=Client}) ->
 lookup_user(_, Ctx) -> Ctx. %% already looked up
 
 username(RD) ->
-    list_to_binary(wrq:path_info(name, RD)).
+    list_to_binary(mochiweb_util:unquote(wrq:path_info(name, RD))).
 
 edit_mode(RD) ->
     wrq:get_qs_value("edit", RD) /= undefined.
@@ -189,7 +193,7 @@ finish_request(RD, Ctx) ->
                                {req, wrq_dtl_helper:new(RD)}]),
             {true,
              wrq:set_resp_header(
-               "Content-type", "text/html",
+               "Content-type", "text/html; charset=utf-8",
                wrq:set_resp_body(Content, RD)),
              Ctx};
         _ ->

@@ -24,6 +24,7 @@
          expires/2,
          resource_exists/2,
          content_types_provided/2,
+         charsets_provided/2,
          to_json/2,
          delete_resource/2]).
 -include_lib("webmachine/include/webmachine.hrl").
@@ -46,7 +47,8 @@ resource_exists(RD, Ctx=#ctx{client=C}) ->
     case session:fetch(C, list_to_binary(wrq:path_info(session, RD))) of
         {ok, Session} ->
             case session:get_user(Session) ==
-                list_to_binary(wrq:path_info(name, RD)) of
+                list_to_binary(
+                  mochiweb_util:unquote(wrq:path_info(name, RD))) of
                 true ->
                     {ok, SC} = wrc:set_client_id(C, wobj:key(Session)),
                     NewSession = session:refresh(Session),
@@ -61,6 +63,9 @@ resource_exists(RD, Ctx=#ctx{client=C}) ->
 
 content_types_provided(RD, Ctx) ->
     {[{"application/json", to_json}], RD, Ctx}.
+
+charsets_provided(RD, Ctx) ->
+    {[{"utf-8", fun(C) -> C end}], RD, Ctx}.
 
 to_json(RD, Ctx=#ctx{session=Session}) ->
     {mochijson2:encode(

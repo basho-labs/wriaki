@@ -232,7 +232,8 @@ render_404_editor(RD, Ctx) ->
     Article = article:create(search_path(RD),
                              list_to_binary(
                                [<<"= This page describes ">>,
-                                mochiweb_html:escape(base64url:decode_to_string(search_path(RD))),
+                                mochiweb_html:escape(
+                                  base64url:decode_to_string(search_path(RD))),
                                 <<" =\n">>]),
                              <<>>,
                              undefined,

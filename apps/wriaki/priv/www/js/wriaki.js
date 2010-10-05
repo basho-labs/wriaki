@@ -62,13 +62,72 @@ function loginSignupSuccess() {
     }
 }
 
+function submitLogin() {
+    var username = $('input[name=login_username]').val();
+    var password = $('input[name=login_password]').val();
+    
+    $.ajax({
+        url:'/user/'+username,
+        type:'POST',
+        data:{'password':password},
+        success:loginSignupSuccess,
+        error:function(req) {
+            $('#loginerror').text('incorrect username/password combination');
+        }
+    });
+}
+
+function submitSettings() {
+    var data = {};
+
+    var p = $('input[name=password]').val();
+    if (p) data.password = p;
+    
+    var e = $('input[name=email]').val();
+    if (e) data.email = e;
+
+    var b = $('input[name=bio]').val();
+    if (b) data.bio = b;
+
+    var u = $('input[name=username]');
+    if (u.length) {
+        data.username = u.val();
+        if (!data.username) {
+            alert("Please choose a username.");
+            return;
+        }
+        if (!data.password) {
+            alert("Please choose a password.");
+            return;
+        }
+    }
+
+    req = {
+        url: data.username ? '/user/'+data.username : window.location.href,
+        type: 'PUT',
+        data: data,
+        success: loginSignupSuccess,
+        error: function(req) {
+            if (req.status == 409)
+                $('#settingserror').text('the requested username is taken');
+            else
+                $('#settingserror').text('an unknown error occured: '+req.responseText);
+        }
+    };
+    $.ajax(req);
+}
+
+function onEnter(handler) {
+    return function(e) {
+        if (e.keyCode == 10 || e.keyCode == 13)
+            handler();
+    };
+}
+
 $(function() {
     /* Header search buttons */
     $('#searchbutton').click(navToSearch);
-    $('#searchtext').keyup(function(e) {
-        if (e.keyCode == 10 || e.keyCode == 13)
-            navToSearch();
-    });
+    $('#searchtext').keyup(onEnter(navToSearch));
 
     /* Article editor buttons */
     $('#editcancel').click(function() {
@@ -90,60 +149,11 @@ $(function() {
     });
 
     /* User settings buttons */
-    $('#settingsave').click(function() {
-        var data = {};
+    $('#settingsave').click(submitSettings);
+    $('.settingfield').keyup(onEnter(submitSettings));
 
-        var p = $('input[name=password]').val();
-        if (p) data.password = p;
-        
-        var e = $('input[name=email]').val();
-        if (e) data.email = e;
-
-        var b = $('input[name=bio]').val();
-        if (b) data.bio = b;
-
-        var u = $('input[name=username]');
-        if (u.length) {
-            data.username = u.val();
-            if (!data.username) {
-                alert("Please choose a username.");
-                return;
-            }
-            if (!data.password) {
-                alert("Please choose a password.");
-                return;
-            }
-        }
-
-        req = {
-            url: data.username ? '/user/'+data.username : window.location.href,
-            type: 'PUT',
-            data: data,
-            success: loginSignupSuccess,
-            error: function(req) {
-                if (req.status == 409)
-                    $('#settingserror').text('the requested username is taken');
-                else
-                    $('#settingserror').text('an unknown error occured: '+req.responseText);
-            }
-        };
-        $.ajax(req);
-    });
-
-    $('#loginbutton').click(function() {
-        var username = $('input[name=login_username]').val();
-        var password = $('input[name=login_password]').val();
-        
-        $.ajax({
-            url:'/user/'+username,
-            type:'POST',
-            data:{'password':password},
-            success:loginSignupSuccess,
-            error:function(req) {
-                $('#loginerror').text('incorrect username/password combination');
-            }
-        });
-    });
+    $('#loginbutton').click(submitLogin);
+    $('.loginfield').keyup(onEnter(submitLogin));
     
     $('#logoutbutton').click(function() {
         

@@ -24,14 +24,14 @@
   <dl class="form">
     {% if not user %}
     <dt>Username</dt>
-    <dd class="required"><input type="text" name="username" value="{{ username|escape }}" /></dd>
+    <dd class="required"><input type="text" name="username" value="{{ username|escape }}" class="settingfield" /></dd>
     {% endif %}
     <dt>{% if user %}New {% endif %}Password</dt>
-    <dd{% if not user %} class="required"{% endif %}><input type="password" name="password" /></dd>
+    <dd{% if not user %} class="required"{% endif %}><input type="password" name="password" class="settingfield" /></dd>
     <dt>Email</dt>
-    <dd><input type="text" name="email"{% if user %}{% if user.email %} value="{{ user.email|escape }}"{% endif %}{% endif %} /></dd>
+    <dd><input type="text" name="email"{% if user %}{% if user.email %} value="{{ user.email|escape }}"{% endif %}{% endif %} class="settingfield" /></dd>
     <dt>Bio</dt>
-    <dd><input type="text" name="bio"{% if user %}{% if user.bio %} value="{{ user.bio|escape }}"{% endif %}{% endif %} /></dd>
+    <dd><input type="text" name="bio"{% if user %}{% if user.bio %} value="{{ user.bio|escape }}"{% endif %}{% endif %} class="settingfield" /></dd>
   </dl>
   {% if not user %}<input type="hidden" name="signup" value="true" />{% endif %}
   <button id="settingsave" type="button">{% if user %}save settings{% else %}sign up{% endif %}</button>

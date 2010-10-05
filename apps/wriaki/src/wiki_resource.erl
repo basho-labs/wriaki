@@ -303,6 +303,7 @@ whitespace_search_operator(C) ->
          $~,
          $*,
          $?,
+         $_,
          34  % double quote "
         ]).
 

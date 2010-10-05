@@ -28,7 +28,7 @@
     <h2>Perhaps you were looking for one of these pages?</h2>
     <ul>
       {% for result in results %}
-      <li><a href="/wiki/{{result.title|urlencode}}">{{result.title|escape}}</li>
+      <li><a href="/wiki/{{result.title|urlencode}}">{{result.title|escape}}</a></li>
       {% endfor %}
     </ul>
     {% endif%}

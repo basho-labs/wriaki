@@ -105,11 +105,13 @@ archive_key_part(ArchiveKey, Part) ->
 url(Article) ->
     case wobj:bucket(Article) of
         ?B_ARTICLE ->
-            ["/wiki/",base64url:decode_to_string(wobj:key(Article))];
+            ["/wiki/",mochiweb_util:quote_plus(
+                        base64url:decode_to_string(wobj:key(Article)))];
         ?B_ARCHIVE ->
-            ["/wiki/",base64url:decode_to_string(
-                        article_key_from_archive_key(
-                          wobj:key(Article)))]
+            ["/wiki/",mochiweb_util:quote_plus(
+                        base64url:decode_to_string(
+                          article_key_from_archive_key(
+                            wobj:key(Article))))]
     end.
 
 get_editor(Article) ->

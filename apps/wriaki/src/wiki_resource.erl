@@ -209,7 +209,7 @@ in_mode(RD, ModeName) ->
     wrq:get_qs_value(ModeName, RD) /= undefined.
 
 search_path(RD) ->
-    base64url:encode(wrq:disp_path(RD)).
+    base64url:encode(mochiweb_util:unquote(wrq:disp_path(RD))).
 
 finish_request(RD, Ctx) ->
     case wrq:response_code(RD) of
@@ -232,7 +232,7 @@ render_404_editor(RD, Ctx) ->
     Article = article:create(search_path(RD),
                              list_to_binary(
                                [<<"= This page describes ">>,
-                                mochiweb_html:escape(mochiweb_util:unquote(base64url:decode_to_string(search_path(RD)))),
+                                mochiweb_html:escape(base64url:decode_to_string(search_path(RD))),
                                 <<" =\n">>]),
                              <<>>,
                              undefined,
@@ -242,7 +242,7 @@ render_404_editor(RD, Ctx) ->
     to_html(RD, ACtx).
 
 render_404(RD, Ctx) ->
-    Search = mochiweb_util:unquote(base64url:decode_to_string(search_path(RD))),
+    Search = base64url:decode_to_string(search_path(RD)),
     Results = search(Ctx#ctx.client, Search),
     {ok, C} = error_404_dtl:render([{req, wrq_dtl_helper:new(RD)},
                                     {search, Search},
@@ -267,8 +267,7 @@ search(Client, RawSearch) ->
                            [{map, {jsanon, ?SEARCH_FUN}, <<>>, true}]),
             case RawResults of
                 [{0, RawKeys}] ->
-                    [ [{url, base64url:decode(R)},
-                       {title, mochiweb_util:unquote(base64url:decode(R))}]
+                    [ [{title, base64url:decode(R)}]
                       || R <- RawKeys ];
                 _ ->
                     []

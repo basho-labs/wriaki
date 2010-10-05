@@ -262,12 +262,11 @@ render_404(RD, Ctx) ->
 search(Client, RawSearch) ->
     case wriaki:search_enabled() of
         true ->
-            Search = sanitize_search(RawSearch),
+            Search = split_search(sanitize_search(RawSearch)),
             {ok, RawResults} =
                 wrc:mapred(Client,
                            {modfun, riak_search, mapred_search,
-                            [<<"article">>,
-                             iolist_to_binary([<<"text:">>, Search])]},
+                            [<<"article">>, iolist_to_binary(Search)]},
                            [{map, {jsanon, ?SEARCH_FUN}, <<>>, true}]),
             case RawResults of
                 [{0, RawKeys}] ->
@@ -279,6 +278,10 @@ search(Client, RawSearch) ->
         false ->
             []
     end.
+
+split_search(Search) ->
+    Tokens = string:tokens(Search, " "),
+    string:join([ [<<"text:">>, T] || T <- Tokens ], " OR ").
 
 sanitize_search(RawSearch) ->
     [ whitespace_search_operator(C) || C <- RawSearch ].

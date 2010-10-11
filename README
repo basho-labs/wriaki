@@ -29,6 +29,9 @@ they are run on the same machine. By default, Riak uses port 8098 on
 localhost while Wriaki uses port 8000. If you leave the default settings 
 you do not need to worry about port conflicts.
 
+Wriaki can also use features of Riak Search, if you have that
+installed.  See the Configuration section for more information.
+
 *** Wiki Creole
 
 The easiest way to get Wiki Creole is by using easy_install:
@@ -67,6 +70,10 @@ The settings that Wriaki knows about are:
  + web_port :: the TCP port Wriaki should listen on
 
  + log_dir :: the directory to write Wriaki's access log in
+
+ + search_enabled :: expose full-text article search through use of
+                     Riak Search features.  Only set to 'true' if you
+                     are running Riak Search instead of vanilla Riak.
 
 * Running
 

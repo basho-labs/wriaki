@@ -1,7 +1,7 @@
 {application, wiki_creole,
  [
   {description, ""},
-  {vsn, "1"},
+  {vsn, "2"},
   {modules, [
              wiki_creole_app,
              wiki_creole_sup,

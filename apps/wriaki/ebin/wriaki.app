@@ -1,7 +1,7 @@
 {application, wriaki,
  [
   {description, "Wriaki, the Riak-based Wiki"},
-  {vsn, "1"},
+  {vsn, "2"},
   {modules, [
              wriaki_app,
              wriaki_sup,

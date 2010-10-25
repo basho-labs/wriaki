@@ -43,7 +43,7 @@ The easiest way to get Wiki Creole is by using easy_install:
 
 To setup Wriaki, first clone the source:
 
-: $ hg clone http://bitbucket.org/basho/wriaki
+: $ git clone git://github.com/basho/wriaki
 
 Next, change to the source directory and run make:
 

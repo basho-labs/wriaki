@@ -28,7 +28,7 @@ function(v, d) {
         // extract the phrases from the text
         var text = JSON.parse(v.values[0].data).text;
         var words = text.match(/[a-z0-9\u80-\uff]*/g).filter(
-            function(s) { return s != ""; }).length
+            function(s) { return s != "" && s.length > 2; }).length
 
         for (var i = 0; i < result.ranges.length; i++) {
             var s = result.ranges[i].start < 5 ?
@@ -39,9 +39,15 @@ function(v, d) {
             // regexp is basically "match START words, then grab everything
             // until WORDS-END words from the end"
             var match = (new RegExp(
-                "(?:[a-z0-9\u80-\uff]+[^a-z0-9\u80-\uff]+){"+s+"}"+
+                "(?:[a-z0-9\u80-\uff]{3,}[^a-z0-9\u80-\uff]+"+
+                    "(?:(?:[a-z0-9\u80-\uff]|[a-z0-9\u80-\uff][a-z0-9\u80-\uff])"+
+                     "[^a-z0-9\u80-\uff]+)*"+
+                    "){"+s+"}"+
                 "(.*)[^a-z0-9\u80-\uff]"+
-                "(?:[a-z0-9\u80-\uff]+[^a-z0-9\u80-\uff]+){"+(words-e)+"}"))
+                "(?:[a-z0-9\u80-\uff]{3,}[^a-z0-9\u80-\uff]+"+
+                    "(?:(?:[a-z0-9\u80-\uff]|[a-z0-9\u80-\uff][a-z0-9\u80-\uff])"+
+                     "[^a-z0-9\u80-\uff]+)*"+
+                    "){"+(words-e)+"}"))
                 .exec(text);
             result.ranges[i] = match[1];
         }

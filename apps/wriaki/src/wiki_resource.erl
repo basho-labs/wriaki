@@ -255,8 +255,43 @@ render_404(RD, Ctx) ->
 
 -define(SEARCH_FUN,
         iolist_to_binary(
-          [<<"function(v) {\n">>,
-           <<"return [v.key];\n">>,
+          [<<"function(v, d) {\n">>,
+
+           %% always want the key in the result
+           <<"var result = {key: v.key};\n">>,
+
+           %% if the object was found, and we have word position info
+           <<"if (v.values && v.values[0] && d.p) {\n">>,
+
+           %% sort positions
+           <<"d.p.sort();\n">>,
+
+           %% create a list of start/end position pairs that attempt
+           %% to group "close" positions (within 5 words) together
+           <<"result.ranges=[{start: d.p[0], end: d.p[0]}];\n">>,
+           <<"for (var i = 1; i < d.p.length; i++) {\n">>,
+           <<"if (result.ranges[result.ranges.length-1].end-d.p[i] < 5)\n">>,
+           <<"result.ranges[result.ranges.length-1].end = d.p[i];\n">>,
+           <<"else\n">>,
+           <<"result.ranges[result.ranges.length] = {start: d.p[i], end: d.p[i]};\n">>,
+           <<"}\n">>,
+
+           %% extract the phrases from the text
+           <<"var text = JSON.parse(v.values[0].data).text;\n">>,
+           <<"var words = text.match(/[a-z0-9\u80-\uff]*/g).filter(function(s) { return s != \"\"; }).length\n">>,
+
+           <<"for (var i = 0; i < result.ranges.length; i++) {\n">>,
+           <<"var s = result.ranges[i].start < 5 ? 0 : result.ranges[i].start-5;\n">>,
+           <<"var e = result.ranges[i].end+5 > words ? words : result.ranges[i].end+5;\n">>,
+           %% regexp is basically "match START words, then grab everything
+           %% until WORDS-END words from the end"
+           <<"var match = (new RegExp(\"(?:[a-z0-9\u80-\uff]+[^a-z0-9\u80-\uff]+){\"+s+\"}(.*)[^a-z0-9\u80-\uff](?:[a-z0-9\u80-\uff]+[^a-z0-9\u80-\uff]+){\"+(words-e)+\"}\")).exec(text);\n">>,
+           <<"result.ranges[i] = match[1];\n">>,
+           <<"}\n">>,
+
+           <<"}\n">>, % end of if values & positions
+
+           <<"return [result];\n">>,
            <<"}">>])).
 
 search(Client, RawSearch) ->
@@ -269,9 +304,11 @@ search(Client, RawSearch) ->
                             [<<"article">>, iolist_to_binary(Search)]},
                            [{map, {jsanon, ?SEARCH_FUN}, <<>>, true}]),
             case RawResults of
-                [{0, RawKeys}] ->
-                    [ [{title, base64url:decode(R)}]
-                      || R <- RawKeys ];
+                [{0, Results}] ->
+                    [ [{title, base64url:decode(
+                                 proplists:get_value(<<"key">>, R))},
+                       {ranges, proplists:get_value(<<"ranges">>, R)}]
+                      || {struct, R} <- Results ];
                 _ ->
                     []
             end;

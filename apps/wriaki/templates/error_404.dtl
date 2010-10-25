@@ -29,6 +29,13 @@
     <ul>
       {% for result in results %}
       <li><a href="/wiki/{{result.title|urlencode}}">{{result.title|escape}}</a></li>
+      {% if result.ranges %}
+      <ul>
+        {% for range in result.ranges %}
+        <li>&hellip;{{range|escape}}&hellip;</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
       {% endfor %}
     </ul>
     {% endif%}

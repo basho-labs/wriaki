@@ -38,16 +38,13 @@ function(v, d) {
 
             // regexp is basically "match START words, then grab everything
             // until WORDS-END words from the end"
+            var w = "[a-z0-9\u80-\uff]"; // word character
+            var n = "[^a-z0-9\u80-\uff]"; // non-word character
+            var skip = "(?:"+w+"{3,}"+n+"+(?:(?:"+w+"|"+w+w+")"+n+"+)*)"
             var match = (new RegExp(
-                "(?:[a-z0-9\u80-\uff]{3,}[^a-z0-9\u80-\uff]+"+
-                    "(?:(?:[a-z0-9\u80-\uff]|[a-z0-9\u80-\uff][a-z0-9\u80-\uff])"+
-                     "[^a-z0-9\u80-\uff]+)*"+
-                    "){"+s+"}"+
-                "(.*)[^a-z0-9\u80-\uff]"+
-                "(?:[a-z0-9\u80-\uff]{3,}[^a-z0-9\u80-\uff]+"+
-                    "(?:(?:[a-z0-9\u80-\uff]|[a-z0-9\u80-\uff][a-z0-9\u80-\uff])"+
-                     "[^a-z0-9\u80-\uff]+)*"+
-                    "){"+(words-e)+"}"))
+                skip+"{"+s+"}"+
+                "(.*)"+n+"*"+
+                skip+"{"+(words-e)+"}"))
                 .exec(text);
             result.ranges[i] = match[1];
         }

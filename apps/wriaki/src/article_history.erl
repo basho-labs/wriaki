@@ -60,37 +60,22 @@ merge_links(Obj, Acc) ->
                 Acc,
                 wobj:get_links(Obj)).
 
--define(TIME_ORDER,
-        iolist_to_binary(
-          [<<"function(v) {\n">>,
-           <<"return v.sort(\n">>,
-           <<"function(a,b) { return b[2]-a[2]; }\n">>,
-           <<"); }">>])).
-
--define(SUMMARY_EXTRACTION,
-        iolist_to_binary(
-          [<<"function(v) {\n">>,
-           <<"var json = JSON.parse(v.values[0].data);\n">>,
-           <<"var summary = {\n">>,
-           <<"version: json.version,\n">>,
-           <<"timestamp: json.timestamp,\n">>,
-           <<"message: json.message,\n">>,
-           <<"};\n">>,
-           <<"var links = v.values[0].metadata.Links;\n">>,
-           <<"for(var i in links) {\n">>,
-           <<"if (links[i][2] == \"editor\") {\n">>,
-           <<"summary.editor = links[i][1];\n">>,
-           <<"}\n">>,
-           <<"}\n">>,
-           <<"return [summary];\n">>,
-           <<"}">>])).
-
 get_version_summaries(ArticleKey) ->
     {ok, Client} = wrc:connect(),
     {ok, [{1, Results}]} = 
         wrc:mapred(Client,
                    [{?B_HISTORY, ArticleKey}],
                    [{link, <<"archive">>, '_', false},
-%%%{reduce, {jsanon, ?TIME_ORDER}, <<>>, false}, %TODO: paging
-                    {map, {jsanon, ?SUMMARY_EXTRACTION}, <<>>, true}]),
+%%%{reduce, {jsanon, time_order_fun()}, <<>>, false}, %TODO: paging
+                    {map, {jsanon, summary_fun()}, <<>>, true}]),
     {ok, Results}.
+
+%% code for summary map phase is in priv/mapred/summary_map.js
+summary_fun() ->
+    wriaki:get_app_env(summary_map,
+                       <<"function() { return []; }">>).
+
+%% code for time order reduce phase is in priv/mapred/time_order_reduce.js
+time_order_fun() ->
+    wriaki:get_app_env(time_order_reduce,
+                       <<"function(v) { return v; }">>).

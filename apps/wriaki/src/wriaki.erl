@@ -21,6 +21,7 @@
 
 -export([set_bucket_props/0,
          search_enabled/0,
+         read_mapred_js/0,
          get_app_env/2]).
 
 -include_lib("wriaki.hrl").
@@ -48,3 +49,16 @@ get_app_env(Env, Default) ->
         {ok, Val} -> Val;
         undefined -> Default
     end.
+
+%% Read each file in PRIV/mapred/<filename>.js and set its content
+%% as wriaki application env <filename>
+read_mapred_js() ->
+    Dir = filename:join(code:priv_dir(wriaki), "mapred"),
+    Filenames = filelib:wildcard("*.js", Dir),
+    lists:foreach(
+      fun(Name) ->
+              {ok, Content} = file:read_file(filename:join(Dir, Name)),
+              Atom = list_to_atom(hd(string:tokens(Name, "."))),
+              application:set_env(wriaki, Atom, Content)
+      end,
+      Filenames).

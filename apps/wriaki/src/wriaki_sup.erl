@@ -45,6 +45,7 @@ start_link() ->
 
 init([]) ->
     wriaki:set_bucket_props(),
+    wriaki:read_mapred_js(),
     
     Ip = wriaki:get_app_env(web_ip, "0.0.0.0"),
     Port = wriaki:get_app_env(web_port, 8000),

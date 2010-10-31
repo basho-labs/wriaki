@@ -95,7 +95,8 @@ get_links(#wobj{links=Links}) ->
     Links.
 
 remove_links(Obj, Bucket, Tag) ->
-    set_links(Obj, lists:filter(link_filter(Bucket, Tag), get_links(Obj))).
+    Filter = link_filter(Bucket, Tag),
+    set_links(Obj, [Link || Link <- get_links(Obj), Filter(Link) =/= true]).
 
 link_filter('_', '_') ->
     fun(_) -> true end;
@@ -214,6 +215,7 @@ decode_vclock(V) ->
 
 remove_links_test() ->
     WObj = wobj:create(<<"bucket">>,<<"key">>,<<"value">>),
-    WObj1 = wobj:add_link(WObj, {{<<"bucket">>,<<"key">>},<<"tag">>}),
-    WObj2 = wobj:remove_links(WObj1, <<"bucket">>, <<"tag">>),
-    ?assertEqual([], wobj:get_links(WObj2)).
+    WObj1 = wobj:add_link(WObj, {{<<"bucket">>,<<"key">>},<<"tag1">>}),
+    WObj2 = wobj:add_link(WObj1, {{<<"bucket">>,<<"key">>},<<"tag2">>}),
+    WObj3 = wobj:remove_links(WObj2, <<"bucket">>, <<"tag1">>),
+    ?assertEqual([{{<<"bucket">>,<<"key">>},<<"tag2">>}], wobj:get_links(WObj3)).

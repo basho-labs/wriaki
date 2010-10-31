@@ -209,3 +209,11 @@ decode_vclock(undefined) ->
     undefined;
 decode_vclock(V) ->
     base64:decode(V).
+
+-include_lib("eunit/include/eunit.hrl").
+
+remove_links_test() ->
+    WObj = wobj:create(<<"bucket">>,<<"key">>,<<"value">>),
+    WObj1 = wobj:add_link(WObj, {{<<"bucket">>,<<"key">>},<<"tag">>}),
+    WObj2 = wobj:remove_links(WObj1, <<"bucket">>, <<"tag">>),
+    ?assertEqual([], wobj:get_links(WObj2)).

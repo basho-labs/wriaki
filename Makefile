@@ -26,3 +26,6 @@ stage : rel
 	rm -rf wiki_creole-* wriaki-* && \
 	ln -s ../../../apps/wiki_creole && \
 	ln -s ../../../apps/wriaki
+
+test:
+	./rebar skip_deps=true eunit

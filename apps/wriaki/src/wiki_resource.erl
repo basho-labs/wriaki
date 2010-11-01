@@ -213,7 +213,12 @@ in_mode(RD, ModeName) ->
     wrq:get_qs_value(ModeName, RD) /= undefined.
 
 search_path(RD) ->
-    base64url:encode(mochiweb_util:unquote(wrq:disp_path(RD))).
+    base64url:encode(
+      unicode:characters_to_binary(
+        ustring:tolower(
+          ustring:new(mochiweb_util:unquote(wrq:disp_path(RD)), utf8)),
+        ustring:encoding(),
+        utf8)).
 
 finish_request(RD, Ctx) ->
     case wrq:response_code(RD) of

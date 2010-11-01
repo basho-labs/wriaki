@@ -47,7 +47,8 @@
                   stdlib,
                   webmachine,
                   erlydtl,
-                  wiki_creole
+                  wiki_creole,
+                  icu4e
                  ]},
   {mod, { wriaki_app, []}},
   {env, []}

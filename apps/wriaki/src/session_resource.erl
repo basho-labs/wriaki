@@ -20,6 +20,7 @@
 -module(session_resource).
 
 -export([init/1,
+         finish_request/2,
          allowed_methods/2,
          expires/2,
          resource_exists/2,
@@ -36,6 +37,10 @@
 init([]) ->
     {ok, Client} = wrc:connect(),
     {ok, #ctx{client=Client}}.
+
+finish_request(RD, Ctx=#ctx{client=C}) ->
+    wrc:disconnect(C),
+    {true, RD, Ctx#ctx{client=disconnected}}.
 
 allowed_methods(RD, Ctx) ->
     {['HEAD','GET','DELETE'], RD, Ctx}.

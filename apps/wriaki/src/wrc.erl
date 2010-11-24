@@ -22,6 +22,7 @@
 -module(wrc).
 
 -export([connect/0, connect/1,
+         disconnect/1,
          ping/1,
          get_client_id/1, set_client_id/2,
          get_server_info/1,
@@ -78,6 +79,11 @@ connect_pb(ClientId, {IP, Port}) ->
     ok = riakc_pb_socket:set_client_id(C, ClientId),
     {ok, #wrc{module = riakc_pb_socket,
               client = C}}.
+
+disconnect(#wrc{module=riakc_pb_socket, client=C}) ->
+    riakc_pb_socket:stop(C);
+disconnect(_WRC) ->
+    ok.
 
 ping(RC) ->
     ?PASS0(RC, ping).

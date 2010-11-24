@@ -68,6 +68,7 @@ get_version_summaries(ArticleKey) ->
                    [{link, <<"archive">>, '_', false},
 %%%{reduce, {jsanon, time_order_fun()}, <<>>, false}, %TODO: paging
                     {map, {jsanon, summary_fun()}, <<>>, true}]),
+    wrc:disconnect(Client),
     {ok, Results}.
 
 %% code for summary map phase is in priv/mapred/summary_map.js

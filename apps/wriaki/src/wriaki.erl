@@ -30,7 +30,8 @@ set_bucket_props() ->
     {ok, Client} = wrc:connect(),
     ok = wrc:set_bucket(Client, ?B_ARTICLE,
                         [{allow_mult, true}|search_hook()]),
-    ok = wrc:set_bucket(Client, ?B_HISTORY, [{allow_mult, true}]).
+    ok = wrc:set_bucket(Client, ?B_HISTORY, [{allow_mult, true}]),
+    wrc:disconnect(Client).
 
 search_hook() ->
     case search_enabled() of

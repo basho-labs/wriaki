@@ -162,7 +162,7 @@ process_post(RD, Ctx=#ctx{user=User, client=C}) ->
                 wriaki_auth:start_session(RD, User),
             {ok, UC} = wrc:set_client_id(C, username(RD)),
             wrc:put(UC, NewUser),
-            {true, NewRD, NewUser};
+            {true, NewRD, Ctx#ctx{user=NewUser}};
         false ->
             {{halt, 409},
              wrq:set_resp_header(
@@ -185,7 +185,9 @@ username(RD) ->
 edit_mode(RD) ->
     wrq:get_qs_value("edit", RD) /= undefined.
 
-finish_request(RD, Ctx) ->
+finish_request(RD, Ctx=#ctx{client=C}) ->
+    wrc:disconnect(C),
+    DCtx = Ctx#ctx{client=disconnected},
     case wrq:response_code(RD) of
         404 ->
             {ok, Content} = user_404_dtl:render(
@@ -195,8 +197,8 @@ finish_request(RD, Ctx) ->
              wrq:set_resp_header(
                "Content-type", "text/html; charset=utf-8",
                wrq:set_resp_body(Content, RD)),
-             Ctx};
+             DCtx};
         _ ->
-            {true, RD, Ctx}
+            {true, RD, DCtx}
     end.
             

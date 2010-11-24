@@ -39,7 +39,9 @@ check(RD) ->
 
 check_user_pass(Username, Password) ->
     {ok, Client} = wrc:connect(),
-    case wrc:get(Client, ?B_USER, Username) of
+    LookupResult = wrc:get(Client, ?B_USER, Username),
+    wrc:disconnect(Client),
+    case LookupResult of
         {ok, User} ->
             case user_resource:password_matches(User, Password) of
                 true  -> {ok, User};
@@ -58,11 +60,14 @@ check_cookie_auth(SessionCookie) ->
                     {ok, UC} = wrc:set_client_id(C, session:get_user(Session)),
                     wrc:put(UC, session:refresh(Session)),
                     {ok, User} = wuser:fetch(UC, session:get_user(Session)),
+                    wrc:disconnect(UC),
                     {{cookie, SessionCookie}, User};
                 false ->
+                    wrc:disconnect(C),
                     false
             end;
         {error, notfound} ->
+            wrc:disconnect(C),
             false
     end.
 
@@ -75,6 +80,7 @@ start_session(RD, User) ->
     SessionCookie = wobj:key(Session),
     {ok, C} = wrc:connect(Username),
     ok = wrc:put(C, Session),
+    wrc:disconnect(C),
     {wrq:merge_resp_headers(
       [ mochiweb_cookies:cookie(K, V, [{path, "/"}])
         || {K, V} <- [{?USERNAME_COOKIE, Username},

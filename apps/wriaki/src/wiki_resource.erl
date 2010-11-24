@@ -223,13 +223,15 @@ finish_request(RD, Ctx) ->
                     true  -> render_404_editor(RD, Ctx);
                     false -> render_404(RD, Ctx)
                 end,
+            wrc:disconnect(NewCtx#ctx.client),
             {true,
              wrq:set_resp_header(
                "Content-type", "text/html; charset=utf-8",
                wrq:set_resp_body(Content, NewRD)),
-             NewCtx};
+             NewCtx#ctx{client=disconnected}};
         _ ->
-            {true, RD, Ctx}
+            wrc:disconnect(Ctx#ctx.client),
+            {true, RD, Ctx#ctx{client=disconnected}}
     end.
 
 render_404_editor(RD, Ctx) ->

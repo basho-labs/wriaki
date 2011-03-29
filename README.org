@@ -52,39 +52,39 @@ Next, change to the source directory and run make:
 
 ** Configuration
 
-After building, you should have a "rel/wriaki/" subdirectory under the
+After building, you should have a =rel/wriaki/= subdirectory under the
 source directory.  Configuration for wriaki is stored in
-"rel/wriaki/etc/app.config".
+=rel/wriaki/etc/app.config=.
 
 The settings that Wriaki knows about are:
 
- + salt :: the "salt" used for encrypting user passwords
+ + =salt= :: the "salt" used for encrypting user passwords
 
- + riak :: the connection information for Riak
-           For Protocol Buffers, use: {pb, {Host, Port}}
-           For HTTP, use: {http, {Host, Port, Prefix}}
-                   http://<Host>:<Port>/<Prefix>/Bucket/Key
+ + =riak= :: the connection information for Riak
+             For Protocol Buffers, use: ={pb, {Host, Port}}=
+             For HTTP, use: ={http, {Host, Port, Prefix}}=
+                   =http://<Host>:<Port>/<Prefix>/Bucket/Key=
 
- + web_ip :: the IP to bind Wriaki's webserver to
+ + =web_ip= :: the IP to bind Wriaki's webserver to
 
- + web_port :: the TCP port Wriaki should listen on
+ + =web_port= :: the TCP port Wriaki should listen on
 
- + log_dir :: the directory to write Wriaki's access log in
+ + =log_dir= :: the directory to write Wriaki's access log in
 
- + search_enabled :: expose full-text article search through use of
-                     Riak Search features.  Only set to 'true' if you
-                     are running Riak Search instead of vanilla Riak.
+ + =search_enabled= :: expose full-text article search through use of
+                       Riak Search features.  Only set to 'true' if you
+                       are running Riak Search instead of vanilla Riak.
 
 * Running
 
 Before running Wriaki, ensure that your Riak cluster is started and
 reachable.
 
-Next, run the wriaki script in your rel/wriaki/bin/ subdirectory:
+Next, run the wriaki script in your =rel/wriaki/bin/= subdirectory:
 
 : $ rel/wriaki/bin/wriaki console
 
-To start Wriaki in the background, use "start" instead of "console" on
+To start Wriaki in the background, use =start= instead of =console= on
 that command line.
 
 * Data Layout
@@ -94,7 +94,7 @@ history, and user.
 
 ** Article
 
-One 'article' object exists for each page on the wiki.
+One article object exists for each page on the wiki.
 
 *** Key: article title
 
@@ -103,8 +103,8 @@ base64 encoded.
 
 *** Bucket: article
 
-Articles are stored in the 'article' Riak bucket.  The 'article'
-bucket is configured for 'allow_mult=true'.  This is done to allow
+Articles are stored in the =article= Riak bucket.  The =article=
+bucket is configured for =allow_mult=true=.  This is done to allow
 multiple users to edit an article concurrently.  If they save at the
 "same" time, the article object will contain siblings on the next
 read, and Wriaki will warn the viewer that there are multiple versions
@@ -113,16 +113,16 @@ of the article that are currently considered "the latest."
 *** Body: json
 
 The value of an article object is JSON, with the fields:
- + text :: (string) content in wiki markup format
- + message :: (string) commit message
- + version :: (string) version hash
- + timestamp :: (int) edit date
+ + =text= :: (string) content in wiki markup format
+ + =message= :: (string) commit message
+ + =version= :: (string) version hash
+ + =timestamp= :: (int) edit date
 
 *** Headers
 
 Articles use one link to track which user created that version of the
-object.  The link will be to an object in the 'user' bucket, and will
-be tagged 'editor'.
+object.  The link will be to an object in the =user= bucket, and will
+be tagged =editor=.
 
 *** Merge: ask user
 
@@ -142,8 +142,8 @@ article object key, separated by a dot.
 
 *** Bucket: archive
 
-Archive objects are stored in the 'archive' bucket.  The bucket is
-left as 'allow_mult=false'.
+Archive objects are stored in the =archive= bucket.  The bucket is
+left as =allow_mult=false=.
 
 *** Body: json
 
@@ -172,8 +172,8 @@ object.
 
 *** Bucket: history
 
-History objects are stored in the 'history' bucket.  The bucket is
-configured for 'allow_mult=true' to allow multiple users to add
+History objects are stored in the =history= bucket.  The bucket is
+configured for =allow_mult=true= to allow multiple users to add
 article versions (thus updating the history) concurrently.
 
 *** Body: empty
@@ -183,7 +183,7 @@ History objects have no data in their bodies.
 *** Headers
 
 History object have one link for each version an article has had.  The
-links will target objects in the 'archive' bucket, and will be tagged
+links will target objects in the =archive= bucket, and will be tagged
 with the timestamp of the article version.
 
 *** Merge: set-union links
@@ -202,17 +202,17 @@ User objects are keyed by url-encoded usernames.
 
 *** Bucket: user
 
-User objects are stored in the 'user' bucket.  The bucket is left as
-'allow_mult=false' because only the user should be updating that
+User objects are stored in the =user= bucket.  The bucket is left as
+=allow_mult=false= because only the user should be updating that
 user's object (no concurrent writing).
 
 *** Body: json
 
 The value of a user object is JSON with the fields:
 
- + email :: (string) email address
- + password :: (string, base64) encrypted
- + bio :: (string) short biography
+ + =email= :: (string) email address
+ + =password= :: (string, base64) encrypted
+ + =bio= :: (string) short biography
 
 *** Headers
 
@@ -235,16 +235,16 @@ Session objects are keyed by a randomly-generated session token.
 
 *** Bucket: session
 
-Session objects are stored in the 'session' bucket.  This bucket is
-left as 'allow_mult=false' because only the active session should be
+Session objects are stored in the =session= bucket.  This bucket is
+left as =allow_mult=false= because only the active session should be
 updating it.
 
 *** Body: json
 
 The value of a session object is JSON with the fields:
 
- + username :: (string) username for the user of this session
- + expiry :: (integer) time at which the session will expire
+ + =username= :: (string) username for the user of this session
+ + =expiry= :: (integer) time at which the session will expire
 
 *** Headers
 
@@ -260,13 +260,13 @@ handle that.
 
 Wriaki exposes the following resources:
 
- + /user :: login page, GET-only
- + /user/<username> :: User's settings
+ + =/user= :: login page, GET-only
+ + =/user/<username>= :: User's settings
 
       GET: with no query parameters returns a page of public
            information about the user
            
-           with query parameter ?edit, returns a form for the user to
+           with query parameter =?edit=, returns a form for the user to
            update their information (user is redirected to
            non-query-parameter URL if this is not their login)
 
@@ -274,34 +274,34 @@ Wriaki exposes the following resources:
 
       POST: login
 
- + /user/<username>/<sessionid> :: Session information
+ + =/user/<username>/<sessionid>= :: Session information
 
       GET: get expiry time of the session, also extends the session's
            expiry
 
       DELETE: remove the session, "logout"
 
- + /wiki/<page name> :: Wiki page
+ + =/wiki/<page name>= :: Wiki page
 
       GET: with no query parameters returns the rendered wiki page
 
-           with query parameter ?edit, returns a form for the user to
+           with query parameter =?edit=, returns a form for the user to
            edit the page
 
-           with query parameter ?history, returns a list of the known
+           with query parameter =?history=, returns a list of the known
            versions of the object
 
-           with query parameter ?v=<version>, returns the page
+           with query parameter =?v=<version>=, returns the page
            rendered for the requested version
 
            with query paramaters
-           ?diff&l=<left_version>&r=<right_version> returns a
+           =?diff&l=<left_version>&r=<right_version>= returns a
            line-by-line difference of the given versions
 
       PUT: store a new version of the wiki page
 
       POST: preview a new version of the wiki page
 
- + /static/* :: serve static files from disk
+ + =/static/*= :: serve static files from disk
 
       GET: retrieve the specified file

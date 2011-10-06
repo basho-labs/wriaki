@@ -47,7 +47,9 @@
                   stdlib,
                   webmachine,
                   erlydtl,
-                  wiki_creole
+                  wiki_creole,
+                  riakc,
+                  riakhttpc
                  ]},
   {mod, { wriaki_app, []}},
   {env, []}

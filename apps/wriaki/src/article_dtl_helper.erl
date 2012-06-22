@@ -114,9 +114,10 @@ history() ->
 
 %% @spec format_time(datetime()) -> iolist()
 %% @doc format a history timestamp for display in HTML
-format_time(EpochSecs) ->
-    Secs = EpochSecs rem 1000000,
-    MegaSecs = (EpochSecs-Secs) div 1000000,
+format_time(TS) ->
+    MicroSecs = TS rem 1000000,
+    Secs = ((TS-MicroSecs) div 1000000) rem 1000000,
+    MegaSecs = (TS-Secs*1000000-MicroSecs) div 1000000000000,
     {{Y,M,D},{H,I,S}} = calendar:now_to_universal_time({MegaSecs, Secs, 0}),
     io_lib:format("~4..0b.~2..0b.~2..0b ~2..0b:~2..0b:~2..0b",
                   [Y,M,D,H,I,S]).

@@ -1,0 +1,14 @@
+%% -*- mode: erlang;erlang-indent-level: 4;indent-tabs-mode: nil -*-
+%% ex: ft=erlang ts=4 sw=4 et
+
+case os:getenv("WEBMACHINE_SERVER") of
+    false ->
+        %% default to mochiweb
+        Define = [{d, 'WRIAKI_BACKEND', webmachine_mochiweb}],
+        lists:keystore(erl_opts, 1, CONFIG, {erl_opts, Define});
+    Else ->
+        %% mochiweb, yaws, or cowboy
+        Backend = list_to_atom("webmachine_" ++ Else),
+        Define = [{d, 'WRIAKI_BACKEND', Backend}],
+        lists:keystore(erl_opts, 1, CONFIG, {erl_opts, Define})
+end.

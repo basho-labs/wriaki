@@ -1,6 +1,6 @@
 %% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2009-2010 Basho Technologies, Inc.  All Rights Reserved.
+%% Copyright (c) 2009-2013 Basho Technologies, Inc.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -28,6 +28,10 @@
 %% Supervisor callbacks
 -export([init/1]).
 
+-ifndef(WRIAKI_BACKEND).
+-define(WRIAKI_BACKEND, webmachine_mochiweb).
+-endif.
+
 %% Helper macro for declaring children of supervisor
 -define(CHILD(Mod, Conf),
         {Mod, {Mod, start, [Conf]}, permanent, 5000, worker, [Mod]}).
@@ -46,7 +50,7 @@ start_link() ->
 init([]) ->
     wriaki:set_bucket_props(),
     wriaki:read_mapred_js(),
-    
+
     Ip = wriaki:get_app_env(web_ip, "0.0.0.0"),
     Port = wriaki:get_app_env(web_port, 8000),
     LogDir = wriaki:get_app_env(log_dir, "priv/log"),
@@ -61,8 +65,7 @@ init([]) ->
                  {log_dir, LogDir},
                  {dispatch, Dispatch}
                  ],
-    Web = {webmachine_mochiweb,
-           {webmachine_mochiweb, start, [WebConfig]},
-           permanent, 5000, worker, [webmachine_mochiweb]},
-
+    Web = {?WRIAKI_BACKEND,
+           {?WRIAKI_BACKEND, start, [WebConfig]},
+           permanent, 5000, worker, [?WRIAKI_BACKEND]},
     {ok, {{one_for_one, 5, 10}, [Web]}}.
